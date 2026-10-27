@@ -2,8 +2,8 @@
   "schema": 1,
   "modId": "minecraftautobot",
   "minecraft": "1.21.11",
-  "version": "0.4.7",
-  "url": "https://raw.githubusercontent.com/kasyniarz123124235/Minecraft-AutoBot-Updates/main/releases/Minecraft-AutoBot-1.21.11-v0.4.7.jar",
-  "sha256": "af81c53605ed77fe41f4314f2144b1af2d210f7032e187e88526e06f96beb245",
-  "size": 105251
+  "version": "0.4.8",
+  "url": "https://raw.githubusercontent.com/kasyniarz123124235/Minecraft-AutoBot-Updates/main/releases/Minecraft-AutoBot-1.21.11-v0.4.8.jar",
+  "sha256": "fdb86403e4082f1f6766f254e50dd33580de7b96dbf671327beb3a2381884be8",
+  "size": 106032
 }
