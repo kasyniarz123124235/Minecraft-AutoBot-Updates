@@ -1,0 +1,46 @@
+name: Publish AutoBot beta 0.4.2 (one-time)
+on:
+  push:
+    paths: [.github/workflows/publish-beta-042.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download compiled beta and verify file
+        env:
+          SOURCE_URL: "https://sdmntprpolandcentral.oaiusercontent.com/files/00000000-9510-820a-b6f9-e8faaaa00f4e/raw?se=2026-10-27T16%3A57%3A55Z&sp=r&sv=2026-02-06&sr=b&scid=3d4c32dd-3658-5cbf-b827-b2efa49ab9f6&skoid=76024c37-11e2-4c92-aa07-7e519fbe2d0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-27T10%3A20%3A35Z&ske=2026-10-28T10%3A20%3A35Z&sks=b&skv=2026-02-06&sig=u4Zt85816pJ7va0fu%2BaVIlzAeRs39Ub0NdPmuXz0tk0%3D"
+        run: |
+          mkdir -p releases
+          curl --fail --show-error --location --retry 3 --max-time 65 --output /tmp/autobot-beta.zip "$SOURCE_URL"
+          unzip -p /tmp/autobot-beta.zip minecraft-autobot-0.4.2.jar > releases/Minecraft-AutoBot-1.21.11-v0.4.2.jar
+          echo "7d43ca75f546aa1df64e64e8002caf0471728e480dbb7e2413cbc2fed3a8bbee  releases/Minecraft-AutoBot-1.21.11-v0.4.2.jar" | sha256sum -c -
+          test "$(stat -c%s releases/Minecraft-AutoBot-1.21.11-v0.4.2.jar)" -eq 89685
+          unzip -p releases/Minecraft-AutoBot-1.21.11-v0.4.2.jar fabric.mod.json | grep -F '"version": "0.4.2"'
+      - name: Write updater manifest
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("releases/Minecraft-AutoBot-1.21.11-v0.4.2.jar")
+          obj = {
+              "schema": 1,
+              "modId": "minecraftautobot",
+              "minecraft": "1.21.11",
+              "version": "0.4.2",
+              "url": "https://raw.githubusercontent.com/kasyniarz123124235/Minecraft-AutoBot-Updates/main/" + str(p),
+              "sha256": "7d43ca75f546aa1df64e64e8002caf0471728e480dbb7e2413cbc2fed3a8bbee",
+              "size": p.stat().st_size
+          }
+          Path("latest.json").write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n")
+          PY
+      - name: Publish JAR and manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add latest.json releases/Minecraft-AutoBot-1.21.11-v0.4.2.jar
+          git commit -m "Release AutoBot v0.4.2 beta"
+          git push
